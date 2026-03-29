@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.0 — 2026-03-28
+
+- **Node firmware** (`firmware/node/src/main.cpp`): Switched back to **broadcast ESP-NOW** — more reliable when the base runs SoftAP (no unicast ACK issues). Sleep restored to 30 s.
+- **Client — auto-discovery** (`ControlPage.tsx`): `NodeReadingsPanel` is now always visible on the Turret tab, even with no station configured. It auto-polls `192.168.4.1/api/nodes` by default. Turret controls (E-Stop, Aim, Stepper, Servo, Pump) still require a station to be selected.
+
 ## 0.5.9 — 2026-03-28
 
 - **Node firmware** (`firmware/node/`): Added `platformio.ini` and moved source to `src/main.cpp` (PlatformIO layout). Switched from broadcast to **unicast ESP-NOW**, targeting the base station's STA MAC (`A4:F0:0F:91:2A:E4`) for reliable delivery.

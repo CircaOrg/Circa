@@ -302,12 +302,14 @@ function TurretTab() {
 
   const hardwareUrl = selectedStation ? getHardwareUrl(selectedStation) : 'http://192.168.4.1';
   const api = useMemo(
-    () => selectedStation ? new TurretApiClient(hardwareUrl, SERVER, true) : null,
-    [selectedStation, hardwareUrl],
+    () => new TurretApiClient(hardwareUrl, SERVER, true),
+    [hardwareUrl],
   );
 
+  // Always-on node panel API — uses selected station URL or falls back to 192.168.4.1
+  const nodeApi = api;
+
   const ping = useCallback(async () => {
-    if (!api) return;
     setPinging(true);
     const r = await api.ping();
     setPingStatus(r.ok ? 'ok' : 'fail');
@@ -316,22 +318,8 @@ function TurretTab() {
 
   useEffect(() => {
     setPingStatus('idle');
-    if (selectedStation) ping();
+    ping();
   }, [selectedStation]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (stations.length === 0) {
-    return (
-      <div className="turret-tab">
-        <h2 className="ctrl-section-title">Hardware Control</h2>
-        <div className="ctrl-empty card">
-          <p>No stations configured</p>
-          <p style={{ color: 'var(--gray-mid)', fontSize: 13 }}>
-            Add a base station from the Configure page first.
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="turret-tab">
@@ -373,31 +361,27 @@ function TurretTab() {
         </div>
 
         {!selectedStation && (
-          <p className="hw-select-hint">Select a station above to enable controls.</p>
+          <p className="hw-select-hint">
+            {stations.length === 0
+              ? 'No stations configured — go to Configure to add one. Node readings auto-detect below.'
+              : 'Select a station above to enable turret controls.'}
+          </p>
         )}
       </div>
 
-      {selectedStation && api && (
+      {/* ── Turret controls (only when station selected) ── */}
+      {selectedStation && (
         <>
-          {/* ── E-Stop ── */}
           <EmergencyStop api={api} />
-
-          {/* ── Aim (primary control) ── */}
           <AimPanel api={api} />
-
-          {/* ── Stepper ── */}
           <StepperPanel api={api} />
-
-          {/* ── Servo ── */}
           <ServoPanel api={api} />
-
-          {/* ── Pump ── */}
           <PumpPanel api={api} />
-
-          {/* ── Node sensor readings ── */}
-          <NodeReadingsPanel api={api} />
         </>
       )}
+
+      {/* ── Node sensor readings — always visible, auto-polls 192.168.4.1 ── */}
+      <NodeReadingsPanel api={nodeApi} />
     </div>
   );
 }
@@ -858,7 +842,9 @@ function NodeReadingsPanel({ api }: { api: TurretApiClient }) {
 
       {nodes.length === 0 ? (
         <p className="hw-empty-hint">
-          No nodes yet — flash a node and wait up to 30 s for its first reading.
+          {loading
+            ? 'Searching for nodes…'
+            : 'No nodes detected — connect to Turret-ESP32 WiFi and wait up to 30 s for a reading.'}
         </p>
       ) : (
         <div className="node-readings-grid">

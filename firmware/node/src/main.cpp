@@ -33,9 +33,9 @@
 #define WIFI_CHANNEL  1
 
 // ── Base station MAC address ──────────────────────────────────────────────────
-// Printed during base station flash: "MAC: a4:f0:0f:91:2a:e4"
-// Unicast is used because broadcast is unreliable when base is in AP mode.
-static uint8_t BASE_ADDR[6] = { 0xa4, 0xf0, 0x0f, 0x91, 0x2a, 0xe4 };
+// Broadcast — base identifies node by sender MAC in the receive callback.
+// More reliable than unicast when base runs SoftAP (no ACK issues).
+static uint8_t BASE_ADDR[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Packet — must match NodePacket in base station main.cpp exactly
@@ -75,12 +75,15 @@ void setup() {
 
   pinMode(SOIL_DO_PIN, INPUT);
 
-  // WiFi STA mode, no connection, lock to channel 1 to match base AP
+  // WIFI_STA mode — simplest for ESP-NOW sender
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
   delay(100);
   esp_wifi_set_channel(WIFI_CHANNEL, WIFI_SECOND_CHAN_NONE);
   delay(100);
+  uint8_t ch; wifi_second_chan_t sc;
+  esp_wifi_get_channel(&ch, &sc);
+  Serial.printf("[WiFi] Channel set to %d (actual=%d)\n", WIFI_CHANNEL, ch);
 
   if (esp_now_init() != ESP_OK) {
     Serial.println("[ESP-NOW] Init failed — sleeping");
