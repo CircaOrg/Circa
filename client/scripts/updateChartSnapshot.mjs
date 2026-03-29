@@ -3,7 +3,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const baseUrl = (process.env.PREDICTOR_BASE_URL || 'http://127.0.0.1:8010').replace(/\/+$/, '');
+const cliBaseUrl = process.argv.find((arg) => arg.startsWith('--base-url='))?.split('=').slice(1).join('=');
+const baseUrl = (cliBaseUrl || 'http://127.0.0.1:8010').replace(/\/+$/, '');
 const clusters = ['cluster_1', 'cluster_2', 'cluster_3'];
 const snapshotPath = path.resolve('src/lib/predictorRealSnapshot.ts');
 

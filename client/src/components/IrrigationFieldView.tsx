@@ -9,7 +9,7 @@
  */
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { useFieldStore } from '../lib/socket';
@@ -151,7 +151,7 @@ function WaypointDot({ x, z, active }: { x: number; z: number; active: boolean }
 
 // ─── SweepPath — draws the snake path between waypoints ───────────────────────
 
-function SweepPath({ waypoints, activeIndex }: { waypoints: SweepWaypoint[]; activeIndex: number }) {
+function SweepPath({ waypoints }: { waypoints: SweepWaypoint[] }) {
   const lineRef = useRef<THREE.Line>(null);
 
   const geo = useMemo(() => {
@@ -452,7 +452,7 @@ function IrrigationScene({
       {/* Sweep overlay */}
       {isSweeping && (
         <>
-          <SweepPath waypoints={sweepWaypoints} activeIndex={sweepActiveIndex} />
+          <SweepPath waypoints={sweepWaypoints} />
           {sweepWaypoints.map((wp) => (
             <WaypointDot
               key={wp.index}

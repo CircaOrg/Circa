@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { connectSocket } from './lib/socket';
 import { useSimulatedData } from './hooks/useSimulatedData'; // ← TEMP: remove to restore real data
 import AppShell from './components/AppShell';
@@ -18,7 +18,7 @@ export default function App() {
   }, []);
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route element={<AppShell />}>
@@ -31,6 +31,6 @@ export default function App() {
           <Route path="*"          element={<Navigate to="/dashboard" replace />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }

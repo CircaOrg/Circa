@@ -22,6 +22,7 @@ import {
   FiXCircle,
 } from 'react-icons/fi';
 import { useFieldStore } from '../lib/socket';
+import { IS_STATIC_DEPLOYMENT, SOCKET_SERVER_URL } from '../lib/runtimeConfig';
 import {
   TurretApiClient,
   SPEED_MIN, SPEED_MAX, SPEED_DEFAULT,
@@ -31,7 +32,7 @@ import {
 import type { HardwareResult, StepperDir, NodeReading } from '../lib/turretApi';
 import './ControlPage.css';
 
-const SERVER = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001';
+const SERVER = SOCKET_SERVER_URL;
 
 // ── Types ────────────────────────────────────────────────────
 interface Schedule {
@@ -98,6 +99,11 @@ function SchedulerTab() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (IS_STATIC_DEPLOYMENT) {
+      setLoading(false);
+      return;
+    }
+
     fetch(`${SERVER}/api/schedules`)
       .then((r) => r.json())
       .then((data) => { if (Array.isArray(data)) setSchedules(data); })
@@ -106,16 +112,20 @@ function SchedulerTab() {
   }, []);
 
   const deleteSchedule = async (id: string) => {
-    await fetch(`${SERVER}/api/schedules/${id}`, { method: 'DELETE' }).catch(() => {});
+    if (!IS_STATIC_DEPLOYMENT) {
+      await fetch(`${SERVER}/api/schedules/${id}`, { method: 'DELETE' }).catch(() => {});
+    }
     setSchedules((s) => s.filter((x) => x.id !== id));
   };
 
   const toggleSchedule = async (id: string, enabled: boolean) => {
-    await fetch(`${SERVER}/api/schedules/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ enabled }),
-    }).catch(() => {});
+    if (!IS_STATIC_DEPLOYMENT) {
+      await fetch(`${SERVER}/api/schedules/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled }),
+      }).catch(() => {});
+    }
     setSchedules((s) => s.map((x) => x.id === id ? { ...x, enabled } : x));
   };
 
@@ -238,6 +248,13 @@ function ScheduleForm({ stations, onCancel, onCreated }: {
       actions: [{ type: 'fire_turret', angle: form.angle, duration: form.duration }],
       enabled: true,
     };
+
+    if (IS_STATIC_DEPLOYMENT) {
+      onCreated({ ...body, id: Date.now().toString(), created_at: new Date().toISOString() } as any);
+      setSaving(false);
+      return;
+    }
+
     const r = await fetch(`${SERVER}/api/schedules`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

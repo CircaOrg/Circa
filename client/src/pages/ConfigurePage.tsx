@@ -16,6 +16,7 @@ import type { BaseStation, Node } from '../lib/socket';
 import { useDevicePlacementStore } from '../lib/devicePlacementStore';
 import { useHardwareStore } from '../lib/hardwareStore';
 import { useFieldShapeStore } from '../lib/fieldShapeStore';
+import { IS_STATIC_DEPLOYMENT, SOCKET_SERVER_URL } from '../lib/runtimeConfig';
 import {
   DEFAULT_FIELD_POLYGON,
   DEFAULT_TURRET_THROW_RADIUS_M,
@@ -148,7 +149,7 @@ function DevicesTab() {
 
 // ─── Device list panel ────────────────────────────────────────────────────────
 
-const SERVER = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001';
+const SERVER = SOCKET_SERVER_URL;
 
 function DeviceListPanel({
   stations,
@@ -165,13 +166,17 @@ function DeviceListPanel({
     if (!confirm(`Delete station "${id}"? Its nodes will also be removed.`)) return;
     removeStation(id);
     nodes.filter((n) => n.station_id === id).forEach((n) => removeNode(n.id));
-    await fetch(`${SERVER}/api/stations/${id}`, { method: 'DELETE' }).catch(() => {});
+    if (!IS_STATIC_DEPLOYMENT) {
+      await fetch(`${SERVER}/api/stations/${id}`, { method: 'DELETE' }).catch(() => {});
+    }
   };
 
   const handleDeleteNode = async (id: string) => {
     if (!confirm(`Delete node "${id}"?`)) return;
     removeNode(id);
-    await fetch(`${SERVER}/api/stations/nodes/${id}`, { method: 'DELETE' }).catch(() => {});
+    if (!IS_STATIC_DEPLOYMENT) {
+      await fetch(`${SERVER}/api/stations/nodes/${id}`, { method: 'DELETE' }).catch(() => {});
+    }
   };
 
   return (
@@ -313,19 +318,23 @@ function AddDeviceForm({
       if (form.hardware_url.trim()) {
         setHardwareUrl(base.id, form.hardware_url.trim());
       }
-      await fetch(`${import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001'}/api/stations`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(base),
-      }).catch(() => {});
+      if (!IS_STATIC_DEPLOYMENT) {
+        await fetch(`${SERVER}/api/stations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(base),
+        }).catch(() => {});
+      }
     } else {
       upsertNode({ ...base, station_id: form.station_id, soil_moisture: undefined });
       setNodeField(base.id, base.field_x, base.field_y);
-      await fetch(`${import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001'}/api/stations/nodes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...base, station_id: form.station_id }),
-      }).catch(() => {});
+      if (!IS_STATIC_DEPLOYMENT) {
+        await fetch(`${SERVER}/api/stations/nodes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...base, station_id: form.station_id }),
+        }).catch(() => {});
+      }
     }
 
     setSaving(false);

@@ -1,6 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { IS_STATIC_DEPLOYMENT, SOCKET_SERVER_URL } from './runtimeConfig';
 
 // ─── Types ──────────────────────────────────────────────────────
 export interface SensorReading {
@@ -118,10 +119,14 @@ export const useFieldStore = create<FieldStore>()(
 let socket: Socket | null = null;
 
 export function connectSocket() {
+  if (IS_STATIC_DEPLOYMENT) {
+    useFieldStore.getState().setConnected(false);
+    return null;
+  }
+
   if (socket?.connected) return socket;
 
-  const url = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001';
-  socket = io(url, { transports: ['websocket'] });
+  socket = io(SOCKET_SERVER_URL, { transports: ['websocket'] });
 
   const store = useFieldStore.getState();
 

@@ -12,6 +12,7 @@
 import { useState, useMemo, useRef, useCallback } from 'react';
 import { useFieldStore } from '../lib/socket';
 import { useHardwareStore } from '../lib/hardwareStore';
+import { IS_STATIC_DEPLOYMENT, SOCKET_SERVER_URL } from '../lib/runtimeConfig';
 import { TurretApiClient } from '../lib/turretApi';
 import { IrrigationFieldView, type PlotCell } from '../components/IrrigationFieldView';
 import {
@@ -29,7 +30,7 @@ import {
 import { polygonPointFromNormalized, DEFAULT_FIELD_POLYGON } from '../lib/fieldShape';
 import './IrrigationControlPage.css';
 
-const SERVER = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001';
+const SERVER = SOCKET_SERVER_URL;
 
 // ─── Move delay helper ──────────────────────────────────────────────────────────
 // How long to wait for the turret to physically slew to a new position (ms).
@@ -138,6 +139,16 @@ export default function IrrigationControlPage() {
 
   const handleSingleFire = async () => {
     if (!selectedPlot || !station || !singleAngles) return;
+
+    if (IS_STATIC_DEPLOYMENT) {
+      setLastResult({
+        ok: false,
+        message: 'Live turret control is disabled in static deployment mode.',
+        at: new Date().toLocaleTimeString(),
+      });
+      return;
+    }
+
     setFiring(true);
     setLastResult(null);
 
@@ -166,6 +177,16 @@ export default function IrrigationControlPage() {
 
   const handleCoverageFire = async () => {
     if (!selectedPlot || !station || !sweepPlan) return;
+
+    if (IS_STATIC_DEPLOYMENT) {
+      setLastResult({
+        ok: false,
+        message: 'Live turret control is disabled in static deployment mode.',
+        at: new Date().toLocaleTimeString(),
+      });
+      return;
+    }
+
     abortRef.current = false;
     setFiring(true);
     setLastResult(null);
@@ -230,6 +251,16 @@ export default function IrrigationControlPage() {
 
   const handleArcFire = async () => {
     if (!station || !arcPlan || arcPlan.waypoints.length === 0) return;
+
+    if (IS_STATIC_DEPLOYMENT) {
+      setLastResult({
+        ok: false,
+        message: 'Live turret control is disabled in static deployment mode.',
+        at: new Date().toLocaleTimeString(),
+      });
+      return;
+    }
+
     abortRef.current = false;
     setFiring(true);
     setLastResult(null);

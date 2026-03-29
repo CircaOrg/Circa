@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-const baseUrl = (process.env.PREDICTOR_BASE_URL || 'http://127.0.0.1:8000').replace(/\/+$/, '');
+const cliBaseUrl = process.argv.find((arg) => arg.startsWith('--base-url='))?.split('=').slice(1).join('=');
+const baseUrl = (cliBaseUrl || 'http://127.0.0.1:8000').replace(/\/+$/, '');
 const clusters = ['cluster_1', 'cluster_2', 'cluster_3'];
 
 async function fetchJson(url) {

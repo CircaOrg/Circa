@@ -135,8 +135,8 @@ const CLUSTERS: ClusterMeta[] = [
 ];
 
 const POLL_INTERVAL_MS = 30_000;
-const PREDICTOR_BASE_URL = (import.meta.env.VITE_PREDICTOR_URL || 'http://localhost:8000').replace(/\/+$/, '');
-const USE_FAKE_PREDICTOR_DATA = (import.meta.env.VITE_USE_FAKE_PREDICTOR_DATA || 'false').toLowerCase() === 'true';
+const PREDICTOR_BASE_URL = 'http://localhost:8000';
+const USE_FAKE_PREDICTOR_DATA = true;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
