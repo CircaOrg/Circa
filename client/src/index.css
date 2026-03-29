@@ -5,10 +5,13 @@
   --gray-50:      #f2f0ec;
   --gray-100:     #e8e4de;
   --gray-200:     #d0cbc2;
+  --gray-300:     #b8b3ab;
   --gray-400:     #9e9991;
+  --gray-500:     #827b73;
   --gray-600:     #6b6560;
   --gray-800:     #2e2b27;
   --black:        #0f0e0c;
+  --gray-mid:     #827b73;
 
   --brown:        #8b6914;
   --brown-light:  #c4972a;
@@ -67,6 +70,15 @@ input, textarea, select {
   outline: none;
   color: inherit;
 }
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239e9991' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
 
 /* ── Scrollbar ──────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -88,8 +100,8 @@ input, textarea, select {
 .card {
   background: var(--white);
   border: 1px solid var(--gray-100);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
+  border-radius: 0;
+  box-shadow: none;
 }
 
 /* ── Buttons ────────────────────────────────────────── */
@@ -100,19 +112,21 @@ input, textarea, select {
   padding: 9px 18px;
   background: var(--black);
   color: var(--white);
-  border: none;
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--black);
+  border-radius: 0;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.01em;
-  transition: background 0.18s var(--ease-out), transform 0.15s var(--ease-out), box-shadow 0.18s;
+  transition: background 0.18s var(--ease-out), color 0.18s var(--ease-out), border-color 0.18s var(--ease-out);
 }
 .btn-primary:hover {
-  background: var(--gray-800);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lift);
+  background: #1a1815;
+  border-color: #1a1815;
 }
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:active {
+  background: #0f0e0c;
+  border-color: #0f0e0c;
+}
 
 .btn-ghost {
   display: inline-flex;
@@ -122,9 +136,9 @@ input, textarea, select {
   background: transparent;
   color: var(--gray-600);
   border: 1px solid var(--gray-200);
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   font-size: 13px;
-  font-weight: 400;
+  font-weight: 500;
   transition: border-color 0.18s, color 0.18s, background 0.18s;
 }
 .btn-ghost:hover {
@@ -138,9 +152,9 @@ input, textarea, select {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 100px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -161,21 +175,21 @@ input, textarea, select {
   padding: 9px 12px;
   background: var(--white);
   border: 1px solid var(--gray-200);
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   color: var(--black);
   font-size: 13px;
-  transition: border-color 0.18s, box-shadow 0.18s;
+  transition: border-color 0.18s, background 0.18s;
 }
 .input:focus {
   border-color: var(--black);
-  box-shadow: 0 0 0 3px rgba(15,14,12,0.06);
+  background: #fffdfa;
 }
 .input::placeholder { color: var(--gray-400); }
 
 /* ── Label ──────────────────────────────────────────── */
 .label {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--gray-600);
   letter-spacing: 0.06em;
@@ -185,7 +199,7 @@ input, textarea, select {
 
 /* ── Section title ──────────────────────────────────── */
 .section-title {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;

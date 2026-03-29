@@ -4,7 +4,6 @@ import { connectSocket } from './lib/socket';
 import AppShell from './components/AppShell';
 import LandingPage from './pages/LandingPage';
 import DashboardPage from './pages/DashboardPage';
-import FieldPage from './pages/FieldPage';
 import ConfigurePage from './pages/ConfigurePage';
 import ControlPage from './pages/ControlPage';
 import './App.css';
@@ -20,7 +19,6 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route element={<AppShell />}>
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/field"     element={<FieldPage />} />
           <Route path="/configure" element={<ConfigurePage />} />
           <Route path="/pair"      element={<Navigate to="/configure" replace />} />
           <Route path="/control"   element={<ControlPage />} />

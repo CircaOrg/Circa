@@ -1,14 +1,15 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import type { IconType } from 'react-icons';
+import { FiGrid, FiSettings, FiSliders } from 'react-icons/fi';
 import { useFieldStore } from '../lib/socket';
 import CircaLogo from './CircaLogo';
 import './AppShell.css';
 
 const NAV = [
-  { to: '/dashboard', icon: '⊞', label: 'Dashboard' },
-  { to: '/field',     icon: '◈', label: 'Field' },
-  { to: '/configure', icon: '⊕', label: 'Configure' },
-  { to: '/control',   icon: '⊡', label: 'Control' },
-];
+  { to: '/dashboard', icon: FiGrid,     label: 'Dashboard' },
+  { to: '/configure', icon: FiSettings, label: 'Configure' },
+  { to: '/control',   icon: FiSliders,  label: 'Control' },
+] satisfies Array<{ to: string; icon: IconType; label: string }>;
 
 export default function AppShell() {
   const connected = useFieldStore((s) => s.connected);
@@ -31,7 +32,7 @@ export default function AppShell() {
               to={item.to}
               className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
             >
-              <span className="sidebar-icon" aria-hidden="true">{item.icon}</span>
+              <span className="sidebar-icon" aria-hidden="true"><item.icon /></span>
               <span className="sidebar-label">{item.label}</span>
             </NavLink>
           ))}

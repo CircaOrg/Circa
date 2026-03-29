@@ -1,6 +1,18 @@
 import { useCallback, useMemo, useState } from 'react';
+import type { IconType } from 'react-icons';
+import {
+  FiAlertTriangle,
+  FiCpu,
+  FiGrid,
+  FiInfo,
+  FiMapPin,
+  FiPlus,
+  FiServer,
+  FiTarget,
+  FiTrash2,
+} from 'react-icons/fi';
 import { useFieldStore } from '../lib/socket';
-import type { BaseStation } from '../lib/socket';
+import type { BaseStation, Node } from '../lib/socket';
 import { useDevicePlacementStore } from '../lib/devicePlacementStore';
 import { useHardwareStore } from '../lib/hardwareStore';
 import { useFieldShapeStore } from '../lib/fieldShapeStore';
@@ -23,19 +35,19 @@ const CROP_TYPES = ['wheat', 'corn', 'cotton', 'rice', 'other'];
 function TabBtn({
   id,
   label,
-  icon,
+  Icon,
   active,
   onClick,
 }: {
   id: string;
   label: string;
-  icon: string;
+  Icon: IconType;
   active: boolean;
   onClick: () => void;
 }) {
   return (
     <button id={id} className={`configure-tab-btn ${active ? 'active' : ''}`} onClick={onClick}>
-      <span className="configure-tab-icon">{icon}</span>
+      <span className="configure-tab-icon" aria-hidden="true"><Icon /></span>
       <span>{label}</span>
     </button>
   );
@@ -52,14 +64,14 @@ export default function ConfigurePage() {
         <TabBtn
           id="tab-field"
           label="Field Configuration"
-          icon="⊞"
+          Icon={FiGrid}
           active={activeTab === 'field'}
           onClick={() => setActiveTab('field')}
         />
         <TabBtn
           id="tab-devices"
           label="Devices"
-          icon="◈"
+          Icon={FiMapPin}
           active={activeTab === 'devices'}
           onClick={() => setActiveTab('devices')}
         />
@@ -143,8 +155,8 @@ function DeviceListPanel({
   nodes,
   onAddDevice,
 }: {
-  stations: ReturnType<typeof useFieldStore>['stations'];
-  nodes: ReturnType<typeof useFieldStore>['nodes'];
+  stations: BaseStation[];
+  nodes: Node[];
   onAddDevice: () => void;
 }) {
   const { removeStation, removeNode } = useFieldStore();
@@ -167,7 +179,8 @@ function DeviceListPanel({
       <div className="configure-side-header">
         <span className="configure-side-kicker mono">Devices</span>
         <button className="btn-primary configure-add-btn" onClick={onAddDevice}>
-          ⊕ Add Device
+          <FiPlus aria-hidden="true" />
+          <span>Add Device</span>
         </button>
       </div>
       <div className="configure-side-list">
@@ -185,7 +198,7 @@ function DeviceListPanel({
               title="Remove station"
               onClick={() => handleDeleteStation(st.id)}
             >
-              ✕
+              <FiTrash2 aria-hidden="true" />
             </button>
           </div>
         ))}
@@ -200,7 +213,7 @@ function DeviceListPanel({
               title="Remove node"
               onClick={() => handleDeleteNode(n.id)}
             >
-              ✕
+              <FiTrash2 aria-hidden="true" />
             </button>
           </div>
         ))}
@@ -338,7 +351,9 @@ function AddDeviceForm({
               className={`configure-type-btn ${deviceType === t ? 'selected' : ''}`}
               onClick={() => setDeviceType(t)}
             >
-              <span className="configure-type-icon">{t === 'station' ? '⊟' : '◈'}</span>
+              <span className="configure-type-icon" aria-hidden="true">
+                {t === 'station' ? <FiServer /> : <FiCpu />}
+              </span>
               <span className="configure-type-label">
                 {t === 'station' ? 'Base Station' : 'Sensor Node'}
               </span>
@@ -414,11 +429,14 @@ function AddDeviceForm({
             </select>
             {constraintStation && (
               <p className="configure-constraint-hint">
-                ◉ Place within the amber ring — turret range{' '}
-                <strong>
-                  {(constraintStation.turret_range_m ?? DEFAULT_TURRET_THROW_RADIUS_M).toFixed(0)}&nbsp;m
-                </strong>{' '}
-                from <strong>{constraintStation.name}</strong>
+                <span className="configure-hint-icon" aria-hidden="true"><FiTarget /></span>
+                <span>
+                  Place within the amber ring — turret range{' '}
+                  <strong>
+                    {(constraintStation.turret_range_m ?? DEFAULT_TURRET_THROW_RADIUS_M).toFixed(0)}&nbsp;m
+                  </strong>{' '}
+                  from <strong>{constraintStation.name}</strong>
+                </span>
               </p>
             )}
           </div>
@@ -443,12 +461,18 @@ function AddDeviceForm({
         )}
 
         {positionError && (
-          <p className="configure-position-error">⚠ {positionError}</p>
+          <p className="configure-position-error">
+            <span className="configure-hint-icon" aria-hidden="true"><FiAlertTriangle /></span>
+            <span>{positionError}</span>
+          </p>
         )}
 
         <p className="configure-note">
-          💡 Ensure your ESP32 has <code>{form.id || '…'}</code> set as <code>DEVICE_ID</code> in{' '}
-          <code>config.h</code>.
+          <span className="configure-note-icon" aria-hidden="true"><FiInfo /></span>
+          <span>
+            Ensure your ESP32 has <code>{form.id || '…'}</code> set as <code>DEVICE_ID</code> in{' '}
+            <code>config.h</code>.
+          </span>
         </p>
 
         <div className="configure-add-actions">

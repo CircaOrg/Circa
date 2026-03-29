@@ -1,4 +1,27 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import type { IconType } from 'react-icons';
+import {
+  FiActivity,
+  FiAlertTriangle,
+  FiArrowRight,
+  FiCalendar,
+  FiCheckCircle,
+  FiClock,
+  FiDroplet,
+  FiMessageSquare,
+  FiPlay,
+  FiPlus,
+  FiPower,
+  FiRefreshCw,
+  FiRotateCcw,
+  FiRotateCw,
+  FiSend,
+  FiSliders,
+  FiSquare,
+  FiTarget,
+  FiTrash2,
+  FiXCircle,
+} from 'react-icons/fi';
 import { useFieldStore } from '../lib/socket';
 import { useHardwareStore } from '../lib/hardwareStore';
 import {
@@ -34,9 +57,9 @@ export default function ControlPage() {
     <div className="control-page">
       {/* ── Tab rail ── */}
       <div className="control-tabs">
-        <TabBtn id="tab-scheduler" label="Scheduler" icon="⊡" active={activeTab === 'scheduler'} onClick={() => setActiveTab('scheduler')} />
-        <TabBtn id="tab-turret"    label="Turret"    icon="⊟" active={activeTab === 'turret'}    onClick={() => setActiveTab('turret')} />
-        <TabBtn id="tab-chat"      label="AI Chat"   icon="◈" active={activeTab === 'chat'}      onClick={() => setActiveTab('chat')} />
+        <TabBtn id="tab-scheduler" label="Scheduler" Icon={FiCalendar}      active={activeTab === 'scheduler'} onClick={() => setActiveTab('scheduler')} />
+        <TabBtn id="tab-turret"    label="Turret"    Icon={FiSliders}       active={activeTab === 'turret'}    onClick={() => setActiveTab('turret')} />
+        <TabBtn id="tab-chat"      label="AI Chat"   Icon={FiMessageSquare} active={activeTab === 'chat'}      onClick={() => setActiveTab('chat')} />
         <div className="tab-indicator" style={{ '--idx': ['scheduler','turret','chat'].indexOf(activeTab) } as any} />
       </div>
 
@@ -49,10 +72,22 @@ export default function ControlPage() {
   );
 }
 
-function TabBtn({ id, label, icon, active, onClick }: { id: string; label: string; icon: string; active: boolean; onClick: () => void }) {
+function TabBtn({
+  id,
+  label,
+  Icon,
+  active,
+  onClick,
+}: {
+  id: string;
+  label: string;
+  Icon: IconType;
+  active: boolean;
+  onClick: () => void;
+}) {
   return (
     <button id={id} className={`tab-btn ${active ? 'active' : ''}`} onClick={onClick}>
-      <span className="tab-icon">{icon}</span>
+      <span className="tab-icon" aria-hidden="true"><Icon /></span>
       <span>{label}</span>
     </button>
   );
@@ -102,7 +137,8 @@ function SchedulerTab() {
           <p className="ctrl-section-sub">If-This-Then-That rules for automatic irrigation</p>
         </div>
         <button id="add-schedule-btn" className="btn-primary" onClick={() => setShowForm(true)}>
-          + New Rule
+          <FiPlus aria-hidden="true" />
+          <span>New Rule</span>
         </button>
       </div>
 
@@ -132,8 +168,18 @@ function ScheduleCard({ schedule, onDelete, onToggle }: {
   onToggle: (id: string, enabled: boolean) => void;
 }) {
   const triggerLabel = schedule.trigger.type === 'time'
-    ? `⏰ ${schedule.trigger.cron}`
-    : `📊 ${schedule.trigger.metric} ${schedule.trigger.operator} ${schedule.trigger.threshold}%`;
+    ? (
+      <>
+        <FiClock aria-hidden="true" />
+        <span>{schedule.trigger.cron}</span>
+      </>
+    )
+    : (
+      <>
+        <FiActivity aria-hidden="true" />
+        <span>{schedule.trigger.metric} {schedule.trigger.operator} {schedule.trigger.threshold}%</span>
+      </>
+    );
 
   const actionLabel = schedule.actions.map((a) =>
     a.type === 'fire_turret' ? `Fire turret @ ${a.angle}° for ${a.duration}s` : a.type
@@ -155,10 +201,12 @@ function ScheduleCard({ schedule, onDelete, onToggle }: {
         <div>
           <p className="schedule-name">{schedule.name}</p>
           <p className="schedule-trigger">{triggerLabel}</p>
-          <p className="schedule-action">→ {actionLabel}</p>
+          <p className="schedule-action"><FiArrowRight aria-hidden="true" /><span>{actionLabel}</span></p>
         </div>
       </div>
-      <button className="schedule-delete" onClick={() => onDelete(schedule.id)} title="Delete">✕</button>
+      <button className="schedule-delete" onClick={() => onDelete(schedule.id)} title="Delete">
+        <FiTrash2 aria-hidden="true" />
+      </button>
     </div>
   );
 }
@@ -399,7 +447,7 @@ function EmergencyStop({ api }: { api: TurretApiClient }) {
   return (
     <div className="hw-estop-bar">
       <button className="hw-estop-btn" disabled={busy} onClick={stop}>
-        {busy ? <span className="spinner hw-estop-spinner" /> : '⊠'}
+        {busy ? <span className="spinner hw-estop-spinner" /> : <FiAlertTriangle aria-hidden="true" />}
         <span>Emergency Stop</span>
       </button>
       <span className="hw-estop-hint">Stops stepper + pump immediately</span>
@@ -571,7 +619,7 @@ function AimPanel({ api }: { api: TurretApiClient }) {
 
       {!liveMode && (
         <button className="btn-primary hw-btn hw-btn--full" disabled={!!busy} onClick={sendOnce}>
-          {busy === 'aim' ? <><span className="spinner" /> Aiming…</> : '⊟ Send Aim'}
+          {busy === 'aim' ? <><span className="spinner" /> Aiming…</> : <><FiSend aria-hidden="true" /> Send Aim</>}
         </button>
       )}
 
@@ -590,7 +638,7 @@ function AimPanel({ api }: { api: TurretApiClient }) {
           disabled={!!busy}
           onClick={fire}
         >
-          {busy === 'fire' ? <span className="spinner" /> : '◉'} Fire
+          {busy === 'fire' ? <span className="spinner" /> : <><FiTarget aria-hidden="true" /> Fire</>}
         </button>
       </div>
 
@@ -640,15 +688,15 @@ function StepperPanel({ api }: { api: TurretApiClient }) {
       <div className="hw-btn-row">
         <button className="btn-primary hw-btn" disabled={!!busy}
           onClick={() => run('cw', () => api.startStepper('cw', speed))}>
-          {busy === 'cw' ? <span className="spinner" /> : '↻'} CW
+          {busy === 'cw' ? <span className="spinner" /> : <><FiRotateCw aria-hidden="true" /> CW</>}
         </button>
         <button className="btn-primary hw-btn" disabled={!!busy}
           onClick={() => run('ccw', () => api.startStepper('ccw', speed))}>
-          {busy === 'ccw' ? <span className="spinner" /> : '↺'} CCW
+          {busy === 'ccw' ? <span className="spinner" /> : <><FiRotateCcw aria-hidden="true" /> CCW</>}
         </button>
         <button className="btn-ghost hw-btn hw-btn--stop" disabled={busy === 'stop'}
           onClick={() => run('stop', () => api.stopStepper())}>
-          {busy === 'stop' ? <span className="spinner" /> : '⊠'} Stop
+          {busy === 'stop' ? <span className="spinner" /> : <><FiSquare aria-hidden="true" /> Stop</>}
         </button>
       </div>
 
@@ -764,11 +812,11 @@ function PumpPanel({ api }: { api: TurretApiClient }) {
       <div className="hw-btn-row">
         <button className="btn-primary hw-btn hw-pump-on" disabled={!!busy}
           onClick={() => run('on', () => api.pumpOn())}>
-          {busy === 'on' ? <span className="spinner" /> : '◉'} Pump On
+          {busy === 'on' ? <span className="spinner" /> : <><FiDroplet aria-hidden="true" /> Pump On</>}
         </button>
         <button className="btn-ghost hw-btn" disabled={!!busy}
           onClick={() => run('off', () => api.pumpOff())}>
-          {busy === 'off' ? <span className="spinner" /> : '◎'} Pump Off
+          {busy === 'off' ? <span className="spinner" /> : <><FiPower aria-hidden="true" /> Pump Off</>}
         </button>
       </div>
 
@@ -783,7 +831,7 @@ function PumpPanel({ api }: { api: TurretApiClient }) {
             onChange={(e) => setSprayMs(parseInt(e.target.value))} />
         </div>
         <button className="btn-primary hw-btn hw-spray-btn" disabled={!!busy} onClick={spray}>
-          {busy === 'spray' ? <span className="spinner" /> : '⊡'} Spray
+          {busy === 'spray' ? <span className="spinner" /> : <><FiPlay aria-hidden="true" /> Spray</>}
         </button>
       </div>
 
@@ -797,7 +845,7 @@ function HwResult({ result }: { result: HardwareResult | null }) {
   if (!result) return null;
   return (
     <p className={`fire-result ${result.ok ? 'success' : 'error'}`}>
-      {result.ok ? '✓' : '✗'} {result.ok ? 'OK' : `Error ${result.status}`}
+      {result.ok ? <FiCheckCircle aria-hidden="true" /> : <FiXCircle aria-hidden="true" />} {result.ok ? 'OK' : `Error ${result.status}`}
       {result.body ? ` — ${result.body.slice(0, 80)}` : ''}
     </p>
   );
@@ -835,7 +883,7 @@ function NodeReadingsPanel({ api }: { api: TurretApiClient }) {
             </span>
           )}
           <button className="btn-ghost hw-ping-btn" onClick={refresh} disabled={loading}>
-            {loading ? <span className="spinner" /> : '↻'}
+            {loading ? <span className="spinner" /> : <FiRefreshCw aria-hidden="true" />}
           </button>
         </div>
       </div>
@@ -887,7 +935,7 @@ Be concise and practical. Focus on water efficiency.`;
 
 async function callGemini(messages: Message[]): Promise<string> {
   if (!GEMINI_KEY) {
-    return "⚠️ No Gemini API key configured. Add VITE_GEMINI_API_KEY to your .env file to enable AI chat.";
+    return "Warning: No Gemini API key configured. Add VITE_GEMINI_API_KEY to your .env file to enable AI chat.";
   }
 
   const contents = messages.map((m) => ({
@@ -920,7 +968,6 @@ function AIChatTab() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
-  const { stations } = useFieldStore();
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });

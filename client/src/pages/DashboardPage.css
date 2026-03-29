@@ -3,11 +3,10 @@
 .dashboard {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 48px - 24px);
+  height: calc(100vh - 48px);
   min-height: 0;
   width: 100%;
   background: #ffffff;
-  margin-bottom: 24px;
 }
 
 /* ── Stats bar ─────────────────────────────────────── */
@@ -51,7 +50,7 @@
 }
 
 .dashboard-stat-label {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -60,7 +59,7 @@
 }
 
 .dashboard-stat-idx {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.04em;
   color: var(--gray-400);
@@ -125,6 +124,7 @@
   flex: 1;
   min-height: 0;
   gap: 0;
+  border-top: none;          /* stat-bar already has border-bottom */
 }
 
 /* ── 3D field column ───────────────────────────────── */
@@ -135,7 +135,6 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--gray-100);
   background: #ffffff;
 }
 
@@ -144,13 +143,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 14px;
+  padding: 14px 20px;
+  min-height: 48px;
   border-bottom: 1px solid var(--gray-100);
   background: #ffffff;
+  box-sizing: border-box;
 }
 
 .dashboard-3d-kicker {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -158,7 +159,7 @@
 }
 
 .dashboard-3d-hint {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.06em;
   color: var(--gray-400);
@@ -180,31 +181,34 @@
   overflow-x: hidden;
   scrollbar-gutter: stable;
   background: #ffffff;
+  border-left: 1px solid var(--gray-100);
 }
 
 .dashboard-info-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 14px 20px 10px;
+  padding: 14px 20px;
+  min-height: 48px;
   border-bottom: 1px solid var(--gray-100);
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .dashboard-info-kicker {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--gray-400);
 }
 
 .dashboard-info-hint {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--gray-300);
+  letter-spacing: 0.06em;
+  color: var(--gray-400);
 }
 
 /* ── Inspector ─────────────────────────────────────── */
@@ -221,13 +225,15 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  padding: 20px 20px 16px;
+  padding: 14px 20px;
+  min-height: 48px;
   border-bottom: 1px solid var(--gray-100);
+  box-sizing: border-box;
 }
 
 .dashboard-inspector-type {
   display: inline-block;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -253,7 +259,7 @@
 
 .dashboard-inspector-id {
   margin: 0;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--gray-400);
   word-break: break-all;
 }
@@ -303,7 +309,7 @@
 
 .dashboard-inspector-section-title {
   margin: 0 0 2px;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -318,7 +324,7 @@
 }
 
 .dashboard-inspector-row-label {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--gray-400);
@@ -407,5 +413,7 @@
   .dashboard-info-panel {
     flex: 1;
     min-height: 0;
+    border-left: none;
+    border-top: 1px solid var(--gray-100);
   }
 }
