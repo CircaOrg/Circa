@@ -240,6 +240,24 @@ export default function DashboardPage() {
           )}
         </aside>
       </div>
+
+      <div style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#eab308',
+        color: '#000',
+        textAlign: 'center',
+        padding: '12px',
+        fontWeight: 600,
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        zIndex: 9999,
+        pointerEvents: 'none'
+      }}>
+        ⚠️ Simulation Mode Active — No real hardware connected ⚠️
+      </div>
     </div>
   );
 }
