@@ -28,206 +28,150 @@
   color: var(--gray-400);
 }
 
-.stats-section .device-row:first-of-type {
-  border-top: none;
-}
-
-/* Device rows — no card box */
-.device-row {
+.stats-card-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 14px 20px 14px 18px;
-  border-bottom: 1px solid var(--gray-100);
-  border-left: 2px solid transparent;
-  margin-left: 0;
-  background: transparent;
-  border-radius: 0;
-  transition: border-left-color 0.18s ease;
+  gap: 12px;
+  padding: 0 20px 12px 20px;
 }
 
-.device-row:hover {
-  border-left-color: var(--brown);
-  box-shadow: none;
-}
-
-button.device-row {
-  width: 100%;
+/* New Card Style */
+.stats-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 16px;
   margin: 0;
-  border-right: none;
-  border-top: none;
-  border-radius: 0;
-  font: inherit;
-  color: inherit;
   text-align: left;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.stats-card--selectable {
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
+  font: inherit;
+  color: inherit;
+  width: 100%;
 }
 
-.device-row--selectable:focus-visible {
+.stats-card--selectable:hover {
+  border-color: var(--gray-300);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.stats-card--selected {
+  border-color: var(--brown);
+  box-shadow: 0 0 0 1px var(--brown);
+}
+
+.stats-card--selectable:focus-visible {
   outline: 2px solid var(--brown);
-  outline-offset: -2px;
+  outline-offset: 2px;
 }
 
-.device-row--selected {
-  border-left-color: var(--brown);
-  background: rgba(107, 83, 68, 0.06);
+.stats-card--offline {
+  opacity: 0.8;
+  background-color: var(--gray-50);
 }
 
-.device-row-left {
+.stats-card-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.stats-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.stats-card-title-wrap {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  min-width: 0;
+  gap: 8px;
 }
 
-.device-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--black);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.stats-card-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: 3px;
+  flex-shrink: 0;
 }
 
-.device-id {
-  font-size: 11px;
-  color: var(--gray-400);
-  margin-top: 2px;
-}
-
-.device-metrics {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px 20px;
-  padding-left: 18px;
-}
-
-.metric {
+.stats-card-title-text {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.metric-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--gray-400);
-}
-
-.metric-value {
-  font-size: 13px;
+.stats-card-title {
+  font-size: 14px;
   font-weight: 600;
   color: var(--black);
 }
 
-.node-moisture-bar-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-left: 18px;
-  min-width: 0;
-}
-
-.node-moisture-bar {
-  flex: 1;
-  min-width: 0;
-  height: 3px;
-  background: var(--gray-100);
-  border-radius: 100px;
-  overflow: hidden;
-}
-
-.node-moisture-fill {
-  height: 100%;
-  border-radius: 100px;
-  transition: width 0.6s var(--ease-out), background 0.4s;
-}
-
-/* Legacy / unused in TSX but kept for compatibility */
-.device-row-top { display: flex; align-items: center; gap: 9px; }
-.device-type-icon { font-size: 13px; }
-.device-status {
+.stats-card-id {
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--green);
+  color: var(--gray-400);
 }
-.device-status.offline { color: var(--gray-400); }
 
-.moisture-bar-wrap { display: flex; flex-direction: column; gap: 4px; }
-.moisture-label {
+.stats-card-status {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.stats-card-status.online {
+  background: rgba(74, 222, 128, 0.15);
+  color: #16a34a;
+}
+
+.stats-card-status.offline {
+  background: var(--gray-100);
+  color: var(--gray-500);
+}
+
+.stats-card-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+  border-top: 1px solid var(--gray-100);
+  padding-top: 12px;
+}
+
+.stats-card-row {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
 }
-.moisture-key {
+
+.stats-card-label {
   font-size: 11px;
-  color: var(--gray-400);
+  color: var(--gray-500);
   letter-spacing: 0.04em;
-}
-.moisture-val {
-  font-size: 12px;
-  font-weight: 600;
-  font-family: var(--font-mono);
-  color: var(--black);
-}
-.moisture-bar {
-  height: 3px;
-  background: var(--gray-100);
-  border-radius: 100px;
-  overflow: hidden;
-}
-.moisture-fill {
-  height: 100%;
-  border-radius: 100px;
-  transition: width 0.6s var(--ease-out), background 0.4s;
+  text-transform: uppercase;
 }
 
-.fill-dry    { background: var(--red); }
-.fill-low    { background: var(--orange); }
-.fill-medium { background: var(--brown); }
-.fill-good   { background: var(--green); }
-.fill-wet    { background: #2563eb; }
-
-.device-readings {
-  display: flex;
-  gap: 14px;
-}
-.device-reading {
-  display: flex;
-  flex-direction: column;
-}
-.device-reading-val {
+.stats-card-value {
   font-size: 13px;
   font-weight: 600;
-  font-family: var(--font-mono);
   color: var(--black);
 }
-.device-reading-key {
-  font-size: 11px;
-  color: var(--gray-400);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
 
-.moisture-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 12px 20px;
-  margin-top: 0;
-  border-top: 1px solid var(--gray-100);
-}
-
-.legend-row { display: flex; align-items: center; gap: 8px; }
-.legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.legend-label { font-size: 11px; color: var(--gray-600); }
-
+/* Empty State */
 .stats-empty {
   padding: 24px 20px;
   text-align: left;

@@ -98,7 +98,7 @@ function FieldGround({ vertices }: { vertices: FieldPolygon }) {
   return (
     <mesh geometry={geo} receiveShadow position={[0, -0.01, 0]}>
       <meshStandardMaterial
-        color="#81c784"
+        color="#22c55e"
         transparent
         opacity={0.4}
         roughness={0.8}
@@ -125,7 +125,7 @@ function FieldBorder3D({ vertices }: { vertices: FieldPolygon }) {
   return (
     <Line
       points={points}
-      color="#c4972a"
+      color="#14532d"
       lineWidth={4}
       transparent
       opacity={0.85}

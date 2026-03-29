@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import type { IconType } from 'react-icons';
 import { FiGrid, FiSettings, FiSliders, FiTrendingUp, FiDroplet } from 'react-icons/fi';
 import CircaLogo from './CircaLogo';
@@ -22,7 +22,9 @@ export default function AppShell() {
       {/* ── Sidebar (editorial rail — matches landing) ── */}
       <nav className="sidebar" aria-label="Main navigation">
         <div className="sidebar-brand">
-          <CircaLogo className="sidebar-wordmark" />
+          <Link to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+            <CircaLogo className="sidebar-wordmark" />
+          </Link>
         </div>
 
         <div className="sidebar-nav">

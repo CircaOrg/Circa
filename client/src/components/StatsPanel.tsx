@@ -16,18 +16,20 @@ export default function StatsPanel({ stations, nodes, selectedKey, onSelectDevic
       {stations.length > 0 && (
         <section className="stats-section">
           <p className="section-title stats-section-title">Base Stations</p>
-          {stations.map((s) => (
-            <StationRow
-              key={s.id}
-              station={s}
-              selected={Boolean(onSelectDevice && selectedKey === `station:${s.id}`)}
-              onSelect={
-                onSelectDevice
-                  ? () => onSelectDevice(selectedKey === `station:${s.id}` ? null : `station:${s.id}`)
-                  : undefined
-              }
-            />
-          ))}
+          <div className="stats-card-list">
+            {stations.map((s) => (
+              <StationCard
+                key={s.id}
+                station={s}
+                selected={Boolean(onSelectDevice && selectedKey === `station:${s.id}`)}
+                onSelect={
+                  onSelectDevice
+                    ? () => onSelectDevice(selectedKey === `station:${s.id}` ? null : `station:${s.id}`)
+                    : undefined
+                }
+              />
+            ))}
+          </div>
         </section>
       )}
 
@@ -40,18 +42,20 @@ export default function StatsPanel({ stations, nodes, selectedKey, onSelectDevic
             <p className="section-title stats-section-title">
               {s.name} — Nodes
             </p>
-            {stationNodes.map((n) => (
-              <NodeRow
-                key={n.id}
-                node={n}
-                selected={Boolean(onSelectDevice && selectedKey === `node:${n.id}`)}
-                onSelect={
-                  onSelectDevice
-                    ? () => onSelectDevice(selectedKey === `node:${n.id}` ? null : `node:${n.id}`)
-                    : undefined
-                }
-              />
-            ))}
+            <div className="stats-card-list">
+              {stationNodes.map((n) => (
+                <NodeCard
+                  key={n.id}
+                  node={n}
+                  selected={Boolean(onSelectDevice && selectedKey === `node:${n.id}`)}
+                  onSelect={
+                    onSelectDevice
+                      ? () => onSelectDevice(selectedKey === `node:${n.id}` ? null : `node:${n.id}`)
+                      : undefined
+                  }
+                />
+              ))}
+            </div>
           </section>
         );
       })}
@@ -64,18 +68,20 @@ export default function StatsPanel({ stations, nodes, selectedKey, onSelectDevic
         return (
           <section className="stats-section">
             <p className="section-title stats-section-title">Unassigned Nodes</p>
-            {unassigned.map((n) => (
-              <NodeRow
-                key={n.id}
-                node={n}
-                selected={Boolean(onSelectDevice && selectedKey === `node:${n.id}`)}
-                onSelect={
-                  onSelectDevice
-                    ? () => onSelectDevice(selectedKey === `node:${n.id}` ? null : `node:${n.id}`)
-                    : undefined
-                }
-              />
-            ))}
+            <div className="stats-card-list">
+              {unassigned.map((n) => (
+                <NodeCard
+                  key={n.id}
+                  node={n}
+                  selected={Boolean(onSelectDevice && selectedKey === `node:${n.id}`)}
+                  onSelect={
+                    onSelectDevice
+                      ? () => onSelectDevice(selectedKey === `node:${n.id}` ? null : `node:${n.id}`)
+                      : undefined
+                  }
+                />
+              ))}
+            </div>
           </section>
         );
       })()}
@@ -90,7 +96,7 @@ export default function StatsPanel({ stations, nodes, selectedKey, onSelectDevic
   );
 }
 
-function StationRow({
+function StationCard({
   station,
   selected,
   onSelect,
@@ -100,26 +106,35 @@ function StationRow({
   onSelect?: () => void;
 }) {
   const cls = [
-    'device-row',
-    onSelect ? 'device-row--selectable' : '',
-    selected ? 'device-row--selected' : '',
+    'stats-card',
+    onSelect ? 'stats-card--selectable' : '',
+    selected ? 'stats-card--selected' : '',
+    !station.online ? 'stats-card--offline' : '',
   ]
     .filter(Boolean)
     .join(' ');
   const inner = (
-    <>
-      <div className="device-row-left">
-        <div>
-          <p className="device-name">{station.name}</p>
-          <p className="device-id mono">{station.id}</p>
+    <div className="stats-card-inner">
+      <div className="stats-card-head">
+        <div className="stats-card-title-wrap">
+          <span className="stats-card-dot" style={{ background: '#c4972a' }} />
+          <div className="stats-card-title-text">
+            <span className="stats-card-title">{station.name}</span>
+            <span className="stats-card-id mono">{station.id}</span>
+          </div>
         </div>
+        <span className={`stats-card-status ${station.online ? 'online' : 'offline'}`}>
+          {station.online ? 'Connected' : 'Not connected'}
+        </span>
       </div>
-      <div className="device-metrics">
-        <Metric label="H" value={station.humidity !== undefined ? `${station.humidity.toFixed(0)}%` : '--'} />
-        <Metric label="T" value={station.temperature !== undefined ? `${station.temperature.toFixed(1)}°` : '--'} />
-        <Metric label="S" value={station.soil_moisture !== undefined ? `${station.soil_moisture.toFixed(0)}%` : '--'} />
-      </div>
-    </>
+      {station.online && (
+        <div className="stats-card-grid">
+          <MetricRow label="Soil Moisture" value={station.soil_moisture !== undefined ? `${station.soil_moisture.toFixed(0)}%` : '--'} />
+          <MetricRow label="Temperature" value={station.temperature !== undefined ? `${station.temperature.toFixed(1)}°C` : '--'} />
+          <MetricRow label="Humidity" value={station.humidity !== undefined ? `${station.humidity.toFixed(0)}%` : '--'} />
+        </div>
+      )}
+    </div>
   );
   if (onSelect) {
     return (
@@ -131,7 +146,7 @@ function StationRow({
   return <div className={cls}>{inner}</div>;
 }
 
-function NodeRow({
+function NodeCard({
   node,
   selected,
   onSelect,
@@ -141,39 +156,40 @@ function NodeRow({
   onSelect?: () => void;
 }) {
   const pct = node.soil_moisture;
-  const color = pct === undefined ? 'var(--gray-dark)'
+  const color = pct === undefined || !node.online ? 'var(--gray-400)'
     : pct < 20 ? '#ef4444'
     : pct < 40 ? '#f97316'
     : pct < 60 ? '#eab308'
     : '#4ade80';
 
   const cls = [
-    'device-row',
-    onSelect ? 'device-row--selectable' : '',
-    selected ? 'device-row--selected' : '',
+    'stats-card',
+    onSelect ? 'stats-card--selectable' : '',
+    selected ? 'stats-card--selected' : '',
+    !node.online ? 'stats-card--offline' : '',
   ]
     .filter(Boolean)
     .join(' ');
   const inner = (
-    <>
-      <div className="device-row-left">
-        <div>
-          <p className="device-name">{node.name}</p>
-          <p className="device-id mono">{node.id}</p>
+    <div className="stats-card-inner">
+      <div className="stats-card-head">
+        <div className="stats-card-title-wrap">
+          <span className="stats-card-dot" style={{ background: color }} />
+          <div className="stats-card-title-text">
+            <span className="stats-card-title">{node.name}</span>
+            <span className="stats-card-id mono">{node.id}</span>
+          </div>
         </div>
-      </div>
-      <div className="node-moisture-bar-wrap">
-        <div className="node-moisture-bar">
-          <div
-            className="node-moisture-fill"
-            style={{ width: `${pct ?? 0}%`, background: color }}
-          />
-        </div>
-        <span className="device-id mono" style={{ color, minWidth: 36, textAlign: 'right' }}>
-          {pct !== undefined ? `${pct.toFixed(0)}%` : '--'}
+        <span className={`stats-card-status ${node.online ? 'online' : 'offline'}`}>
+          {node.online ? 'Connected' : 'Not connected'}
         </span>
       </div>
-    </>
+      {node.online && (
+        <div className="stats-card-grid">
+          <MetricRow label="Soil Moisture" value={pct !== undefined ? `${pct.toFixed(0)}%` : '--'} />
+        </div>
+      )}
+    </div>
   );
   if (onSelect) {
     return (
@@ -185,11 +201,11 @@ function NodeRow({
   return <div className={cls}>{inner}</div>;
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function MetricRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="metric">
-      <span className="metric-label">{label}</span>
-      <span className="metric-value mono">{value}</span>
+    <div className="stats-card-row">
+      <span className="stats-card-label mono">{label}</span>
+      <span className="stats-card-value">{value}</span>
     </div>
   );
 }
