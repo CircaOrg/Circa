@@ -1,7 +1,7 @@
 /**
  * useSimulatedData — temporary demo hook.
  *
- * Injects 1 base station + 2 sensor nodes into the Zustand field store and
+ * Injects 10 base stations + a large node fleet into the Zustand field store and
  * continuously fires simulated sensor readings every 1.5 s (simulating live
  * transmissions). Also intercepts fetch() so the Control-page Scheduler and
  * Configure-page device lists look fully populated without a real server.
@@ -14,43 +14,47 @@ import type { BaseStation, Node } from '../lib/socket';
 
 // ─── Static device definitions ────────────────────────────────────────────────
 
-const SIMULATED_STATION: BaseStation = {
-  id:             'demo-station-01',
-  name:           'Base Station Alpha',
-  field_x:        0.5,
-  field_y:        0.5,
-  crop_type:      'Wheat',
-  online:         true,
-  humidity:       62,
-  temperature:    23.4,
-  soil_moisture:  47,
-  turret_range_m: 18,
-};
-
-const SIMULATED_NODES: Node[] = [
-  {
-    id:                  'demo-node-01',
-    station_id:          'demo-station-01',
-    name:                'Node A',
-    field_x:             0.28,
-    field_y:             0.35,
-    crop_type:           'Wheat',
-    online:              true,
-    soil_moisture:       54,
-    irrigation_radius_m: 8,
-  },
-  {
-    id:                  'demo-node-02',
-    station_id:          'demo-station-01',
-    name:                'Node B',
-    field_x:             0.73,
-    field_y:             0.65,
-    crop_type:           'Wheat',
-    online:              true,
-    soil_moisture:       38,
-    irrigation_radius_m: 8,
-  },
+const SIMULATED_STATIONS: BaseStation[] = [
+  { id: 'demo-station-01', name: 'Base Station North-1', field_x: 0.12, field_y: 0.18, crop_type: 'Wheat',  online: true, humidity: 61, temperature: 22.8, soil_moisture: 46, turret_range_m: 18 },
+  { id: 'demo-station-02', name: 'Base Station North-2', field_x: 0.30, field_y: 0.16, crop_type: 'Corn',   online: true, humidity: 59, temperature: 23.2, soil_moisture: 43, turret_range_m: 17 },
+  { id: 'demo-station-03', name: 'Base Station North-3', field_x: 0.48, field_y: 0.14, crop_type: 'Cotton', online: true, humidity: 57, temperature: 24.1, soil_moisture: 39, turret_range_m: 18 },
+  { id: 'demo-station-04', name: 'Base Station North-4', field_x: 0.66, field_y: 0.17, crop_type: 'Rice',   online: true, humidity: 64, temperature: 23.5, soil_moisture: 51, turret_range_m: 19 },
+  { id: 'demo-station-05', name: 'Base Station North-5', field_x: 0.84, field_y: 0.19, crop_type: 'Wheat',  online: true, humidity: 62, temperature: 22.9, soil_moisture: 48, turret_range_m: 18 },
+  { id: 'demo-station-06', name: 'Base Station Mid-1',   field_x: 0.18, field_y: 0.45, crop_type: 'Corn',   online: true, humidity: 56, temperature: 24.3, soil_moisture: 37, turret_range_m: 17 },
+  { id: 'demo-station-07', name: 'Base Station Mid-2',   field_x: 0.38, field_y: 0.46, crop_type: 'Cotton', online: true, humidity: 58, temperature: 24.0, soil_moisture: 41, turret_range_m: 18 },
+  { id: 'demo-station-08', name: 'Base Station Mid-3',   field_x: 0.58, field_y: 0.48, crop_type: 'Rice',   online: true, humidity: 63, temperature: 23.6, soil_moisture: 52, turret_range_m: 19 },
+  { id: 'demo-station-09', name: 'Base Station Mid-4',   field_x: 0.76, field_y: 0.44, crop_type: 'Wheat',  online: true, humidity: 60, temperature: 23.1, soil_moisture: 45, turret_range_m: 18 },
+  { id: 'demo-station-10', name: 'Base Station South-1', field_x: 0.50, field_y: 0.76, crop_type: 'Corn',   online: true, humidity: 55, temperature: 24.7, soil_moisture: 36, turret_range_m: 17 },
 ];
+
+const NODE_OFFSETS: Array<[number, number]> = [
+  [-0.055, -0.03],
+  [0.062, -0.018],
+  [-0.02, 0.065],
+];
+
+const SIMULATED_NODES: Node[] = SIMULATED_STATIONS.flatMap((station, stationIndex) =>
+  NODE_OFFSETS.map(([dx, dy], nodeIndex) => {
+    const absoluteIndex = stationIndex * NODE_OFFSETS.length + nodeIndex + 1;
+    const moistureBase = 34 + ((stationIndex * 9 + nodeIndex * 7) % 36);
+
+    return {
+      id: `demo-node-${String(absoluteIndex).padStart(2, '0')}`,
+      station_id: station.id,
+      name: `Node ${String.fromCharCode(65 + nodeIndex)} · ${station.name.replace('Base Station ', '')}`,
+      field_x: Math.min(0.96, Math.max(0.04, station.field_x + dx)),
+      field_y: Math.min(0.96, Math.max(0.04, station.field_y + dy)),
+      crop_type: station.crop_type,
+      online: true,
+      soil_moisture: moistureBase,
+      irrigation_radius_m: 7 + ((stationIndex + nodeIndex) % 3),
+    };
+  }),
+);
+
+const PRIMARY_STATION_ID = SIMULATED_STATIONS[0]?.id ?? 'demo-station-01';
+const SECONDARY_STATION_ID = SIMULATED_STATIONS[1]?.id ?? PRIMARY_STATION_ID;
+const TERTIARY_STATION_ID = SIMULATED_STATIONS[7]?.id ?? PRIMARY_STATION_ID;
 
 // ─── Simulated schedules for the Control → Scheduler tab ───────────────────────
 
@@ -58,7 +62,7 @@ const SIMULATED_SCHEDULES = [
   {
     id:         'demo-sched-01',
     name:       'Morning Moisture Check',
-    station_id: 'demo-station-01',
+    station_id: PRIMARY_STATION_ID,
     trigger:    { type: 'condition', metric: 'soil_moisture', operator: '<', threshold: 30 },
     conditions: [],
     actions:    [{ type: 'fire_turret', angle: 90, duration: 8 }],
@@ -68,7 +72,7 @@ const SIMULATED_SCHEDULES = [
   {
     id:         'demo-sched-02',
     name:       'Sunrise Irrigation',
-    station_id: 'demo-station-01',
+    station_id: SECONDARY_STATION_ID,
     trigger:    { type: 'time', cron: '0 6 * * *' },
     conditions: [],
     actions:    [{ type: 'fire_turret', angle: 45, duration: 15 }],
@@ -78,7 +82,7 @@ const SIMULATED_SCHEDULES = [
   {
     id:         'demo-sched-03',
     name:       'Evening Top-Up',
-    station_id: 'demo-station-01',
+    station_id: TERTIARY_STATION_ID,
     trigger:    { type: 'time', cron: '0 19 * * *' },
     conditions: [],
     actions:    [{ type: 'fire_turret', angle: 135, duration: 10 }],
@@ -145,7 +149,7 @@ function interceptedFetch(input: RequestInfo | URL, init?: RequestInit): Promise
 
   // ── GET/POST /api/stations ──────────────────────────────────────────────────
   if (url.match(/\/api\/stations$/) && method === 'GET') {
-    return Promise.resolve(jsonResponse([SIMULATED_STATION]));
+    return Promise.resolve(jsonResponse(SIMULATED_STATIONS));
   }
   if (url.match(/\/api\/stations$/) && method === 'POST') {
     return Promise.resolve(jsonResponse({ ok: true }, 201));
@@ -179,9 +183,18 @@ export function useSimulatedData() {
   useEffect(() => {
     const store = useFieldStore.getState();
 
-    // Seed field store devices
-    store.upsertStation(SIMULATED_STATION);
+    // Clear old demo entities from persisted state before reseeding.
+    store.stations
+      .filter((station) => station.id.startsWith('demo-station-'))
+      .forEach((station) => store.removeStation(station.id));
+    store.nodes
+      .filter((node) => node.id.startsWith('demo-node-'))
+      .forEach((node) => store.removeNode(node.id));
+
+    // Seed field store devices.
+    SIMULATED_STATIONS.forEach((station) => store.upsertStation(station));
     SIMULATED_NODES.forEach((n) => store.upsertNode(n));
+    store.setConnected(true);
 
     // Install fetch interceptor (so Control/Configure pages see simulated server data)
     simulatedSchedules = [...SIMULATED_SCHEDULES]; // reset to defaults each mount
@@ -190,18 +203,29 @@ export function useSimulatedData() {
     // Continuously emit simulated sensor readings — mimics live transmissions
     const interval = setInterval(() => {
       const now = new Date().toISOString();
-      store.applyReading({ entityType: 'station', entityId: SIMULATED_STATION.id, metric: 'humidity',      value: fluctuate(62,   3,   40, 95),  timestamp: now });
-      store.applyReading({ entityType: 'station', entityId: SIMULATED_STATION.id, metric: 'temperature',   value: fluctuate(23.4, 0.8, 10, 45),  timestamp: now });
-      store.applyReading({ entityType: 'station', entityId: SIMULATED_STATION.id, metric: 'soil_moisture', value: fluctuate(47,   2,   10, 100), timestamp: now });
-      store.applyReading({ entityType: 'node',    entityId: SIMULATED_NODES[0].id, metric: 'soil_moisture', value: fluctuate(54, 3, 10, 100), timestamp: now });
-      store.applyReading({ entityType: 'node',    entityId: SIMULATED_NODES[1].id, metric: 'soil_moisture', value: fluctuate(38, 3, 10, 100), timestamp: now });
+
+      SIMULATED_STATIONS.forEach((station) => {
+        const humidityBase = typeof station.humidity === 'number' ? station.humidity : 60;
+        const temperatureBase = typeof station.temperature === 'number' ? station.temperature : 23;
+        const moistureBase = typeof station.soil_moisture === 'number' ? station.soil_moisture : 45;
+
+        store.applyReading({ entityType: 'station', entityId: station.id, metric: 'humidity',      value: fluctuate(humidityBase, 3.0, 35, 95),  timestamp: now });
+        store.applyReading({ entityType: 'station', entityId: station.id, metric: 'temperature',   value: fluctuate(temperatureBase, 1.1, 10, 45), timestamp: now });
+        store.applyReading({ entityType: 'station', entityId: station.id, metric: 'soil_moisture', value: fluctuate(moistureBase, 2.8, 8, 100),   timestamp: now });
+      });
+
+      SIMULATED_NODES.forEach((node) => {
+        const moistureBase = typeof node.soil_moisture === 'number' ? node.soil_moisture : 42;
+        store.applyReading({ entityType: 'node', entityId: node.id, metric: 'soil_moisture', value: fluctuate(moistureBase, 4.2, 8, 100), timestamp: now });
+      });
     }, 1500);
 
     return () => {
       clearInterval(interval);
       window.fetch = originalFetch as typeof fetch; // restore real fetch
-      store.removeStation(SIMULATED_STATION.id);
+      SIMULATED_STATIONS.forEach((station) => store.removeStation(station.id));
       SIMULATED_NODES.forEach((n) => store.removeNode(n.id));
+      store.setConnected(false);
     };
   }, []);
 }

@@ -98,6 +98,8 @@ export default function LandingPage() {
   return (
     <div className="landing">
 
+      <div className="landing-sim-banner mono">SIMULATED</div>
+
       {/* ── Header bar ── */}
       <header className="landing-header">
         <div className="landing-brand">
@@ -129,7 +131,7 @@ export default function LandingPage() {
         {/* Info row */}
         <div className="landing-info-row">
           <div className="landing-info-left">
-            <p className="landing-meta mono">CIRCA AGRI-TECH · {dateStr}</p>
+            <p className="landing-meta mono">CIRCA AGRI-TECH · {dateStr} · MADE AT YHACK</p>
             <p className="landing-desc">
               Real-time monitoring and precision irrigation control<br />
               for ESP32-based turret systems across your field.
@@ -138,11 +140,11 @@ export default function LandingPage() {
 
           <div className="landing-info-links">
             <button id="landing-enter" className="landing-link-btn active" onClick={enter}>
-              Enter Dashboard →
+              Enter Simulated Dashboard →
             </button>
-            <a className="landing-link-btn" href="https://github.com" target="_blank" rel="noreferrer">GitHub</a>
-            <a className="landing-link-btn" href="#firmware">Firmware</a>
-            <a className="landing-link-btn" href="#docs">Docs</a>
+            <a className="landing-link-btn" href="https://github.com/CircaOrg/circaorg.github.io" target="_blank" rel="noreferrer">GitHub</a>
+            <a className="landing-link-btn" href="https://github.com/CircaOrg/circaorg.github.io/tree/main/firmware" target="_blank" rel="noreferrer">Firmware</a>
+            <a className="landing-link-btn" href="https://github.com/CircaOrg/ml-vwc-predictor" target="_blank" rel="noreferrer">Machine Learning</a>
           </div>
         </div>
 

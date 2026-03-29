@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { connectSocket } from './lib/socket';
-import { useSimulatedData } from './hooks/useSimulatedData'; // ← TEMP: remove to restore real data
+import { useSimulatedData } from './hooks/useSimulatedData'; // Default deployment mode is simulated.
 import AppShell from './components/AppShell';
 import LandingPage from './pages/LandingPage';
 import DashboardPage from './pages/DashboardPage';
@@ -12,7 +12,7 @@ import IrrigationControlPage from './pages/IrrigationControlPage';
 import './App.css';
 
 export default function App() {
-  useSimulatedData(); // ← TEMP: comment out to restore real data
+  useSimulatedData();
   useEffect(() => {
     connectSocket();
   }, []);
