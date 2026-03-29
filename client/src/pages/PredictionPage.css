@@ -305,6 +305,11 @@
   border-top-style: dashed;
 }
 
+.prediction-legend-line.actual {
+  border-top-color: #2d7a4f;
+  border-top-style: dotted;
+}
+
 .prediction-chart-wrap {
   flex: 1;
   min-height: 0;
