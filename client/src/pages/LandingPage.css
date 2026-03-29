@@ -15,21 +15,6 @@
   flex-direction: column;
 }
 
-.landing-sim-banner {
-  position: absolute;
-  top: 76px;
-  right: max(var(--landing-inline-pad), env(safe-area-inset-right));
-  z-index: 30;
-  padding: 6px 10px;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--white);
-  background: var(--black);
-  border: 1px solid var(--gray-700);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
-}
-
 /* ── Header ─────────────────────────────────────────── */
 .landing-header {
   position: absolute;
@@ -238,12 +223,6 @@
 
 /* ── Responsive ──────────────────────────────────────── */
 @media (max-width: 700px) {
-  .landing-sim-banner {
-    top: 72px;
-    padding: 5px 8px;
-    font-size: 9px;
-  }
-
   .landing-info-row {
     grid-template-columns: 1fr;
   }

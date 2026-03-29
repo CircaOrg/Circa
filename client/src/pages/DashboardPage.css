@@ -3,9 +3,10 @@
 .dashboard {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 48px);
+  height: 100%;
   min-height: 0;
   width: 100%;
+  overflow: hidden;
   background: #ffffff;
 }
 
@@ -123,6 +124,7 @@
   display: flex;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
   gap: 0;
   border-top: none;          /* stat-bar already has border-bottom */
 }

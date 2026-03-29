@@ -11,26 +11,27 @@
 import { useEffect } from 'react';
 import { useFieldStore } from '../lib/socket';
 import type { BaseStation, Node } from '../lib/socket';
+import { useDevicePlacementStore } from '../lib/devicePlacementStore';
 
 // ─── Static device definitions ────────────────────────────────────────────────
 
 const SIMULATED_STATIONS: BaseStation[] = [
-  { id: 'demo-station-01', name: 'Base Station North-1', field_x: 0.12, field_y: 0.18, crop_type: 'Wheat',  online: true, humidity: 61, temperature: 22.8, soil_moisture: 46, turret_range_m: 18 },
-  { id: 'demo-station-02', name: 'Base Station North-2', field_x: 0.30, field_y: 0.16, crop_type: 'Corn',   online: true, humidity: 59, temperature: 23.2, soil_moisture: 43, turret_range_m: 17 },
-  { id: 'demo-station-03', name: 'Base Station North-3', field_x: 0.48, field_y: 0.14, crop_type: 'Cotton', online: true, humidity: 57, temperature: 24.1, soil_moisture: 39, turret_range_m: 18 },
-  { id: 'demo-station-04', name: 'Base Station North-4', field_x: 0.66, field_y: 0.17, crop_type: 'Rice',   online: true, humidity: 64, temperature: 23.5, soil_moisture: 51, turret_range_m: 19 },
-  { id: 'demo-station-05', name: 'Base Station North-5', field_x: 0.84, field_y: 0.19, crop_type: 'Wheat',  online: true, humidity: 62, temperature: 22.9, soil_moisture: 48, turret_range_m: 18 },
-  { id: 'demo-station-06', name: 'Base Station Mid-1',   field_x: 0.18, field_y: 0.45, crop_type: 'Corn',   online: true, humidity: 56, temperature: 24.3, soil_moisture: 37, turret_range_m: 17 },
-  { id: 'demo-station-07', name: 'Base Station Mid-2',   field_x: 0.38, field_y: 0.46, crop_type: 'Cotton', online: true, humidity: 58, temperature: 24.0, soil_moisture: 41, turret_range_m: 18 },
-  { id: 'demo-station-08', name: 'Base Station Mid-3',   field_x: 0.58, field_y: 0.48, crop_type: 'Rice',   online: true, humidity: 63, temperature: 23.6, soil_moisture: 52, turret_range_m: 19 },
-  { id: 'demo-station-09', name: 'Base Station Mid-4',   field_x: 0.76, field_y: 0.44, crop_type: 'Wheat',  online: true, humidity: 60, temperature: 23.1, soil_moisture: 45, turret_range_m: 18 },
-  { id: 'demo-station-10', name: 'Base Station South-1', field_x: 0.50, field_y: 0.76, crop_type: 'Corn',   online: true, humidity: 55, temperature: 24.7, soil_moisture: 36, turret_range_m: 17 },
+  { id: 'demo-station-01', name: 'Base Station A1', field_x: 0.18, field_y: 0.24, crop_type: 'Wheat',  online: true, humidity: 61, temperature: 22.8, soil_moisture: 46, turret_range_m: 18 },
+  { id: 'demo-station-02', name: 'Base Station A2', field_x: 0.34, field_y: 0.24, crop_type: 'Corn',   online: true, humidity: 59, temperature: 23.2, soil_moisture: 43, turret_range_m: 17 },
+  { id: 'demo-station-03', name: 'Base Station A3', field_x: 0.50, field_y: 0.24, crop_type: 'Cotton', online: true, humidity: 57, temperature: 24.1, soil_moisture: 39, turret_range_m: 18 },
+  { id: 'demo-station-04', name: 'Base Station A4', field_x: 0.66, field_y: 0.24, crop_type: 'Rice',   online: true, humidity: 64, temperature: 23.5, soil_moisture: 51, turret_range_m: 19 },
+  { id: 'demo-station-05', name: 'Base Station A5', field_x: 0.82, field_y: 0.24, crop_type: 'Wheat',  online: true, humidity: 62, temperature: 22.9, soil_moisture: 48, turret_range_m: 18 },
+  { id: 'demo-station-06', name: 'Base Station B1', field_x: 0.18, field_y: 0.62, crop_type: 'Corn',   online: true, humidity: 56, temperature: 24.3, soil_moisture: 37, turret_range_m: 17 },
+  { id: 'demo-station-07', name: 'Base Station B2', field_x: 0.34, field_y: 0.62, crop_type: 'Cotton', online: true, humidity: 58, temperature: 24.0, soil_moisture: 41, turret_range_m: 18 },
+  { id: 'demo-station-08', name: 'Base Station B3', field_x: 0.50, field_y: 0.62, crop_type: 'Rice',   online: true, humidity: 63, temperature: 23.6, soil_moisture: 52, turret_range_m: 19 },
+  { id: 'demo-station-09', name: 'Base Station B4', field_x: 0.66, field_y: 0.62, crop_type: 'Wheat',  online: true, humidity: 60, temperature: 23.1, soil_moisture: 45, turret_range_m: 18 },
+  { id: 'demo-station-10', name: 'Base Station B5', field_x: 0.82, field_y: 0.62, crop_type: 'Corn',   online: true, humidity: 55, temperature: 24.7, soil_moisture: 36, turret_range_m: 17 },
 ];
 
 const NODE_OFFSETS: Array<[number, number]> = [
-  [-0.055, -0.03],
-  [0.062, -0.018],
-  [-0.02, 0.065],
+  [-0.03, -0.028],
+  [0.032, -0.02],
+  [0.0, 0.036],
 ];
 
 const SIMULATED_NODES: Node[] = SIMULATED_STATIONS.flatMap((station, stationIndex) =>
@@ -42,8 +43,8 @@ const SIMULATED_NODES: Node[] = SIMULATED_STATIONS.flatMap((station, stationInde
       id: `demo-node-${String(absoluteIndex).padStart(2, '0')}`,
       station_id: station.id,
       name: `Node ${String.fromCharCode(65 + nodeIndex)} · ${station.name.replace('Base Station ', '')}`,
-      field_x: Math.min(0.96, Math.max(0.04, station.field_x + dx)),
-      field_y: Math.min(0.96, Math.max(0.04, station.field_y + dy)),
+      field_x: Math.min(0.9, Math.max(0.1, station.field_x + dx)),
+      field_y: Math.min(0.9, Math.max(0.1, station.field_y + dy)),
       crop_type: station.crop_type,
       online: true,
       soil_moisture: moistureBase,
@@ -190,6 +191,17 @@ export function useSimulatedData() {
     store.nodes
       .filter((node) => node.id.startsWith('demo-node-'))
       .forEach((node) => store.removeNode(node.id));
+
+    // Remove persisted drag/drop overrides for demo entities so new example layout is applied.
+    useDevicePlacementStore.setState((placementState) => {
+      const stationField = Object.fromEntries(
+        Object.entries(placementState.stationField).filter(([id]) => !id.startsWith('demo-station-')),
+      );
+      const nodeField = Object.fromEntries(
+        Object.entries(placementState.nodeField).filter(([id]) => !id.startsWith('demo-node-')),
+      );
+      return { stationField, nodeField };
+    });
 
     // Seed field store devices.
     SIMULATED_STATIONS.forEach((station) => store.upsertStation(station));

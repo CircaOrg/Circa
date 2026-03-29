@@ -242,14 +242,21 @@
 
 /* ── Page content ─────────────────────────────────── */
 .main-content {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
-  overflow-y: auto;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
   overflow-x: hidden;
 }
 
 .page-content {
+  flex: 1;
   padding: 0;
-  min-height: calc(100vh - 48px);
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: var(--white);
 }
 
@@ -258,11 +265,13 @@
   background: var(--white);
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 48px);
+  min-height: 0;
+  overflow: hidden;
 }
 
 .page-content:has(.dashboard) > .dashboard {
   flex: 1;
+  height: 100%;
   min-height: 0;
 }
 

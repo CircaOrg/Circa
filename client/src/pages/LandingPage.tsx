@@ -98,8 +98,6 @@ export default function LandingPage() {
   return (
     <div className="landing">
 
-      <div className="landing-sim-banner mono">SIMULATED</div>
-
       {/* ── Header bar ── */}
       <header className="landing-header">
         <div className="landing-brand">

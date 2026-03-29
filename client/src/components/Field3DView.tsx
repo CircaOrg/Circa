@@ -89,6 +89,46 @@ function moistureCol(pct: number | undefined): string {
   return '#12e877';
 }
 
+function sceneBoundsWithRanges(
+  vertices: FieldPolygon,
+  stations: BaseStation[],
+  nodes: Node[],
+): { minX: number; maxX: number; minZ: number; maxZ: number } {
+  const base = polygonBoundingBox(vertices);
+  let minX = base.minX;
+  let maxX = base.maxX;
+  let minZ = base.minZ;
+  let maxZ = base.maxZ;
+
+  const expand = (x: number, z: number, pad: number) => {
+    if (!Number.isFinite(x) || !Number.isFinite(z) || !Number.isFinite(pad)) return;
+    minX = Math.min(minX, x - pad);
+    maxX = Math.max(maxX, x + pad);
+    minZ = Math.min(minZ, z - pad);
+    maxZ = Math.max(maxZ, z + pad);
+  };
+
+  for (const station of stations) {
+    const { x, z } = toXZ(station.field_x, station.field_y, vertices);
+    const reach = Math.max(0, station.turret_range_m ?? DEFAULT_TURRET_THROW_RADIUS_M);
+    expand(x, z, reach + 3);
+  }
+
+  for (const node of nodes) {
+    const { x, z } = toXZ(node.field_x, node.field_y, vertices);
+    const reach = Math.max(0, node.irrigation_radius_m ?? DEFAULT_NODE_IRRIGATION_RADIUS_M);
+    expand(x, z, reach + 2);
+  }
+
+  const edgePad = 2;
+  return {
+    minX: minX - edgePad,
+    maxX: maxX + edgePad,
+    minZ: minZ - edgePad,
+    maxZ: maxZ + edgePad,
+  };
+}
+
 
 
 function FieldGround({ vertices }: { vertices: FieldPolygon }) {
@@ -367,7 +407,6 @@ function Node3D({
 function Scene3D({
   cx,
   cz,
-  tgtZ,
   span,
   stations,
   nodes,
@@ -377,7 +416,6 @@ function Scene3D({
 }: {
   cx: number;
   cz: number;
-  tgtZ: number;
   span: number;
   stations: BaseStation[];
   nodes: Node[];
@@ -461,14 +499,14 @@ function Scene3D({
       {/* Camera controls — pan + zoom only; rotation locked so the field stays top-down.
           Left-drag is remapped to pan so the user can pan intuitively. */}
       <OrbitControls
-        target={[cx, 0, tgtZ]}
+        target={[cx, 0, cz]}
         enableRotate={false}
         enablePan
         enableZoom
         enableDamping
         dampingFactor={0.1}
-        minDistance={span * 0.2}
-        maxDistance={span * 3.5}
+        minDistance={Math.max(span * 0.35, 12)}
+        maxDistance={Math.max(span * 6, 160)}
         screenSpacePanning
         mouseButtons={{
           LEFT: THREE.MOUSE.PAN,
@@ -491,11 +529,6 @@ export default function Field3DView({
 }) {
   const rawVertices = useFieldShapeStore((s) => s.vertices);
   const vertices = useMemo(() => sanitizeVertices(rawVertices), [rawVertices]);
-  const bb = useMemo(() => polygonBoundingBox(vertices), [vertices]);
-
-  const cx = (bb.minX + bb.maxX) / 2;
-  const cz = (bb.minZ + bb.maxZ) / 2;
-  const span = Math.max(bb.maxX - bb.minX, bb.maxZ - bb.minZ, 1);
 
   const socketStations = useFieldStore((s) => s.stations);
   const socketNodes = useFieldStore((s) => s.nodes);
@@ -511,27 +544,37 @@ export default function Field3DView({
     [socketNodes, nodeField],
   );
 
-  // Top-down "from an angle" view (~16° from vertical, X-primary tilt).
-  //
-  // Camera sits to the upper-right of the field centre, angled primarily in X
-  // so the near/far Z edges stay symmetric and don't clip at the bottom.
-  // The FOV is widened to ensure the full field comfortably fills the canvas.
-  const h    = span * 0.88 + 28;           // height (~116 m for a 100 m field)
-  const xOff = span * 0.26 + 7;            // rightward tilt (~16° from vertical)
-  const zOff = span * 0.04 + 1;            // tiny forward — Z edges stay centred
-  const tgtZ = cz;                          // target at field centre
-
-  const camPos = useMemo<[number, number, number]>(
-    () => [cx + xOff, h, cz + zOff],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [cx, cz], // recalculate only when the field polygon changes
+  const viewBounds = useMemo(
+    () => sceneBoundsWithRanges(vertices, stations, nodes),
+    [vertices, stations, nodes],
   );
+
+  const cx = (viewBounds.minX + viewBounds.maxX) / 2;
+  const cz = (viewBounds.minZ + viewBounds.maxZ) / 2;
+  const span = Math.max(viewBounds.maxX - viewBounds.minX, viewBounds.maxZ - viewBounds.minZ, 1);
+
+  const cameraFov = 58;
+  const fitDistance = useMemo(() => {
+    const halfFovRad = THREE.MathUtils.degToRad(cameraFov / 2);
+    return (span * 0.5 * 1.35) / Math.tan(halfFovRad);
+  }, [span]);
+
+  // Fit camera to include both field boundary and device range rings.
+  // A mild oblique angle keeps depth cues while guaranteeing full visibility.
+  const camPos = useMemo<[number, number, number]>(() => {
+    const tiltRad = THREE.MathUtils.degToRad(18);
+    const horizontal = fitDistance * Math.sin(tiltRad);
+    const vertical = fitDistance * Math.cos(tiltRad);
+    return [cx + horizontal * 0.95, vertical + 8, cz + horizontal * 0.28];
+  }, [cx, cz, fitDistance]);
+
+  const cameraFar = Math.max(span * 18 + 180, 420);
 
   return (
     <div className="field-3d-view">
       <Canvas
         style={{ width: '100%', height: '100%' }}
-        camera={{ fov: 55, near: 0.5, far: span * 16 + 120, position: camPos }}
+        camera={{ fov: cameraFov, near: 0.5, far: cameraFar, position: camPos }}
         gl={{ antialias: true, alpha: false }}
         shadows
         dpr={[1, 2]}
@@ -541,7 +584,6 @@ export default function Field3DView({
           <Scene3D
             cx={cx}
             cz={cz}
-            tgtZ={tgtZ}
             span={span}
             stations={stations}
             nodes={nodes}
