@@ -38,15 +38,7 @@ export default function AppShell() {
           ))}
         </div>
 
-        <div className="sidebar-footer">
-          <div
-            className={`sidebar-live ${connected ? 'online' : 'offline'}`}
-            title={connected ? 'Socket connected' : 'Disconnected'}
-          >
-            <span className="sidebar-live-dot" />
-            <span className="sidebar-live-label mono">{connected ? 'Live' : 'Offline'}</span>
-          </div>
-        </div>
+
       </nav>
 
       {/* ── Main ── */}

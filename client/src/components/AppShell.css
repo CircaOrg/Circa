@@ -67,7 +67,7 @@
   flex-direction: row;
   align-items: center;
   gap: var(--sidebar-item-gap);
-  padding: 12px var(--sidebar-item-pad-x);
+  padding: 15px var(--sidebar-item-pad-x);
   border-left: var(--sidebar-rail-width) solid transparent;
   border-top: 1px solid var(--gray-100);
   border-radius: 0;
@@ -98,7 +98,7 @@
 .sidebar-icon {
   flex-shrink: 0;
   width: var(--sidebar-icon-width);
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1;
   text-align: center;
   color: var(--gray-600);
@@ -120,7 +120,7 @@
 
 .sidebar-label {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.01em;
   line-height: 1.3;
 }
@@ -178,7 +178,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 20px;
   height: 48px;
   border-bottom: 1px solid var(--gray-100);
   background: var(--white);
@@ -296,7 +296,7 @@
   .sidebar-item {
     flex-direction: column;
     gap: 4px;
-    padding: 8px 12px 10px;
+    padding: 10px 12px 12px;
     flex-shrink: 0;
     border-left: none;
     border-top: none;

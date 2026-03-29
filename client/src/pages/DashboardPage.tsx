@@ -129,7 +129,7 @@ function DeviceInspector({
 }
 
 export default function DashboardPage() {
-  const { stations, nodes, lastUpdate } = useFieldStore();
+  const { stations, nodes } = useFieldStore();
   const [selected, setSelected] = useState<BaseStation | Node | null>(null);
 
   const handleSelect = (item: BaseStation | Node | null) => setSelected(item);
@@ -163,8 +163,8 @@ export default function DashboardPage() {
     return hs.length ? hs.reduce((a, b) => a + b, 0) / hs.length : null;
   })();
 
-  const offlineNodes = nodes.filter((n) => !n.online).length;
   const onlineStations = stations.filter((s) => s.online).length;
+  const onlineNodes = nodes.filter((n) => n.online).length;
 
   const kpis: {
     label: string;
@@ -184,11 +184,10 @@ export default function DashboardPage() {
       tone: onlineStations < stations.length ? 'warn' : 'normal',
     },
     {
-      label: 'Down nodes',
-      value: String(offlineNodes),
-      tone: offlineNodes > 0 ? 'alert' : 'normal',
+      label: 'Nodes',
+      value: `${onlineNodes} / ${nodes.length}`,
+      tone: onlineNodes < nodes.length ? 'warn' : 'normal',
     },
-    { label: 'Total nodes', value: String(nodes.length), tone: 'normal' },
   ];
 
   return (
@@ -201,7 +200,6 @@ export default function DashboardPage() {
               key={row.label}
               className={[
                 'dashboard-stat-item',
-                i === kpis.length - 1 ? 'dashboard-stat-item--invert' : '',
                 `dashboard-stat-item--${row.tone}`,
               ].join(' ')}
             >
@@ -214,17 +212,6 @@ export default function DashboardPage() {
               <span className="dashboard-stat-value mono">{row.value}</span>
             </div>
           ))}
-          <div className="dashboard-stat-item dashboard-stat-item--time">
-            <div className="dashboard-stat-item-top">
-              <span className="dashboard-stat-label">Updated</span>
-              <span className="dashboard-stat-idx mono" aria-hidden>
-                {String(kpis.length + 1).padStart(2, '0')}
-              </span>
-            </div>
-            <span className="dashboard-stat-value dashboard-stat-value--time mono">
-              {lastUpdate ? new Date(lastUpdate).toLocaleTimeString() : '—'}
-            </span>
-          </div>
         </div>
       </header>
 
